@@ -3,6 +3,7 @@ from grafo import *
 # crear_grafo_internet carga los datos de las páginas en un grafo.
 def crear_grafo_internet(direccion):
     grafo_nuevo = Grafo(es_dirigido=True)
+    guardados = set()
 
     # Lee los datos del archivo.
     with open(direccion, "rt") as archivo:
@@ -16,6 +17,10 @@ def crear_grafo_internet(direccion):
 
             # Se recorre el resto de los datos ya que son los adyacentes al vértice.
             for ady in datos_parseados:
+
+                if ady in guardados:
+                    grafo_nuevo.agregar_vertice(ady)
+
                 grafo_nuevo.agregar_arista(pagina, ady)
     
     return grafo_nuevo
