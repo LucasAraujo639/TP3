@@ -2,7 +2,8 @@ import random
 from test_grafo import *
 
 
-"""METODOS DEL GRAFO
+# MÉTODOS DEL GRAFO:
+
 # agregar_vertice(self, v)
 # borrar_vertice(self, v)
 # agregar_arista(self, v, w, peso = 1)
@@ -13,7 +14,7 @@ from test_grafo import *
 # vertice_aleatorio(self)
 # adyacentes(self, v)
 # str
-"""
+
 class Grafo:
     def __init__(self, es_dirigido = True):
         self.vertices = {}
