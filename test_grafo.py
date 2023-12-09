@@ -1,6 +1,6 @@
 def test_grafo_agregar(g):
     respuesta_ady = {"A":{"B":3, "C":5,"D":1},"B":{"A":2},"C":{"A":22,"B":33}, "D":{}}
-    respuesta_vertices = ["A","B","C","D"]
+    respuesta_vertices = {'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D'}
     
     g.agregar_vertice("A")
     g.agregar_vertice("B")
@@ -13,8 +13,8 @@ def test_grafo_agregar(g):
     g.agregar_arista("C","A",22)
     g.agregar_arista("C","B",33)
     
-    # print(g.obtener_vertices())
-    # print(g.adyacentes)
+    print(g.obtener_vertices())
+    print(g.adyacentes("C"))
     
     if g.obtener_vertices() != respuesta_vertices:
         return False
@@ -25,7 +25,7 @@ def test_grafo_agregar(g):
 def test_grafo_borrar(g):
     
     respuesta_ady = {"A":{"D":1},"C":{"A":22}, "D":{}}
-    respuesta_vertices = ["A","C","D"]
+    respuesta_vertices = {'A': 'A', 'C': 'C', 'D': 'D'}
     
     g.agregar_vertice("A")
     g.agregar_vertice("B")
@@ -44,6 +44,9 @@ def test_grafo_borrar(g):
     g.borrar_arista("D","A") # La arista no existe
     g.borrar_arista("C","B")
     g.borrar_vertice("B")
+
+    print(g.obtener_vertices())
+    print(g.adyacentes("C"))
     
     if g.obtener_vertices() != respuesta_vertices:
         return False

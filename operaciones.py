@@ -52,17 +52,21 @@ def _obtener_distancias_radiales_bfs(grafo, v):
 
 # conectividad muestra todas las páginas a los que se puede llegar desde la página pasada por parámetro y
 # que, a su vez, puedan también volver a dicha página.
-def conectividad(grafo, vertice_origen):
+def conectados(grafo, vertice_origen):
     resultados = []
     visitados = set()
-    for v in grafo:
+    for v in grafo.obtener_vertices():
         if v not in visitados:
             _dfs_tarjan(grafo,vertice_origen,resultados, visitados,deque(), set(), {},{},[0])
-    return resultados
+            
+    for cfc in resultados:
+        if vertice_origen in cfc:
+            return cfc
+    return []
 
 # _dfs_tarjan
 def _dfs_tarjan(grafo,v,resultados, visitados, pila, apilados, mb, orden, contador_global):
-    mb[v] = orden[v] = contador_global[v]
+    mb[v] = orden[v] = contador_global[0]
     pila.append(v)
     apilados.add(v)
     contador_global[0] += 1
