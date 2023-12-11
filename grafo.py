@@ -1,84 +1,49 @@
 import random
 
-
-
-# MÉTODOS DEL GRAFO:
-
-# agregar_vertice(self, v)
-# borrar_vertice(self, v)
-# agregar_arista(self, v, w, peso = 1)
-# borrar_arista(self, v, w)
-# estan_unidos(self, v, w)
-# peso_arista(self, v, w)
-# obtener_vertices(self)
-# vertice_aleatorio(self)
-# adyacentes(self, v)
-# str
-
 class Grafo:
-    def __init__(self, es_dirigido = True):
-        self.vertices = {}
-        self.es_dirigido = es_dirigido
+    
+    def __init__(self, esdirigido = True):
+        self.vertices = []
+        self.adyacencias = {}
+        self.esdirigido = esdirigido
     
     def agregar_vertice(self, v):
-        self.vertices[v] = {}
-
-    def borrar_vertice(self, v):
-        try:
-            del(self.vertices[v])
-            if not self.es_dirigido:
-                for w in self.vertices:
-                    del self.vertices[w]
-        except KeyError:
-            print("El vertice no existe")
-            
-    def agregar_arista(self, v, w, peso = 1): 
-        try:
-            self.vertices[v][w] = peso
-            if not self.es_dirigido:
-                self.vertices[w][v] = peso
-        except KeyError:
-            print("Vertice/s no existe")
-            
-    def esdirigido(self):
-        return self.es_dirigido
+        self.vertices.append(v)
+        self.adyacencias[v] = {}
+    
+    def borrar_vertice(self,v):
+        self.vertices.remove(v)
+        del self.adyacencias[v]
+        for w in self.vertices:
+            if v in self.adyacencias[w]:
+                del self.adyacencias[w][v]
+        
+    def obtener_vertices(self):
+        return self.vertices
     
     def borrar_arista(self, v, w):
-        try:
-            if self.estan_unidos:
-                del(self.vertices[v][w])
-                if not self.es_dirigido:
-                    del(self.adyacentes[w][v])
-        except KeyError:
-            print("La arista no existe")
-                       
-    def estan_unidos(self, v, w):
-        return v in self.vertices and w in self.vertices and self.vertices[v].get(w) is not None
+        if (self.estan_unidos(v, w)):
+            del self.adyacencias[v][w]
+            if not self.esdirigido:
+                    del self.adyacencias[w][v]           
+        
+    def agregar_arista(self, v, w, peso = 1):
+        self.adyacencias[v][w] = peso
+        if not self.esdirigido:
+            self.adyacencias[w][v] = peso
     
-    def peso_arista(self, v, w):
-        try:
-            if self.estan_unidos:
-                return self.vertices[v][w]
-        except KeyError:
-            print("La arista no existe")
-            
-    def obtener_vertices(self):
-        lista_vertices = []
-        for v in self.vertices:
-            lista_vertices.append(v)
-        return lista_vertices
+    def estan_unidos(self, v, w):
+        return w in self.adyacencias[v]
 
-             
-    def vertice_aleatorio(self):
-        return random.choice(list(self.vertices))
+    def peso_arista(self, v, w):
+        if self.estan_unidos(v, w):
+            return self.adyacencias[v][w]
     
     def adyacentes(self, v):
-        lista_adyacentes = []
-        for w in self.vertices[v].keys():
-            lista_adyacentes.append(w)
-        return lista_adyacentes
-            
-    def str(self):
-        return str(self.adyacentes) # Devuelve una cadena de adyacentes
+        return list(self.adyacencias[v])
     
-
+    def vertice_aleatorio(self):
+        return random.choice(self.vertices)
+    
+    def __str__(self):
+        return str(self.adyacencias)

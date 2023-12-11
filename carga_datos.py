@@ -2,12 +2,13 @@ from grafo import *
 
 # crear_grafo_internet carga los datos de las páginas en un grafo.
 def crear_grafo_internet(direccion):
-    grafo_nuevo = Grafo(es_dirigido=True)
+    grafo_nuevo = Grafo()
     guardados = set()
 
     # Lee los datos del archivo.
     with open(direccion, "rt") as archivo:
         for linea in archivo:
+            linea = linea.rstrip()
             # Se separan los datos según el formato de los archivos.
             datos_parseados = linea.split("\t")
 

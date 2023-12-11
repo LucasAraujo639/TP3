@@ -1,13 +1,28 @@
 from collections import deque
 from grafo import *
 from test_grafo import *
-
+import sys
 import random
 
+MAX_ITER =  20
 # Operaciones:
 
-# Diámetro de un grafo:
+# Imprime en pantalla las operaciones existentes
+def listar_operaciones():
+    print("camino")
+    print("mas_importantes")
+    print("conectados")
+    print("ciclo")
+    print("rango")
+    print("lectura")
+    print("diametro")
+    print("rango")
+    print("navegacion")
+    print("camino_mas_corto")
+    print("clustering")
+    print("comunidad")
 
+# Diámetro de un grafo:
 # diametro devuelve el diámetro del grafo.
 def diametro(grafo):
     diametro = 0
@@ -47,12 +62,34 @@ def _obtener_distancias_radiales_bfs(grafo, v):
 
     return dist_max
 
+# Rango
+# Permite obtener la cantidad de páginas que se encuenten a exactamente
+# n links/saltos desde la página pasada por parámetro.
+def rango(grafo,vertice_origen, n):
+    visitados = set()
+    cola = deque()
+    resultado = []
+    orden = {}
+    cola.append(vertice_origen)
+    visitados.add(vertice_origen)
+    orden[vertice_origen] = 0
+    while len(cola) > 0:
+        v = cola.popleft()
+        for w in grafo.adyacentes(v):
+            if w not in visitados:
+                orden[w] = orden[v] + 1
+                visitados.add(w)
+                if orden[w] == n:
+                    resultado.append(w)
+                elif orden[w] < n:
+                    cola.append(w)
+    return len(resultado)
 
 # Conectividad:
-
 # conectividad muestra todas las páginas a los que se puede llegar desde la página pasada por parámetro y
 # que, a su vez, puedan también volver a dicha página.
 def conectados(grafo, vertice_origen):
+    sys.setrecursionlimit(20000)
     resultados = []
     visitados = set()
     for v in grafo.obtener_vertices():
@@ -85,12 +122,10 @@ def _dfs_tarjan(grafo,v,resultados, visitados, pila, apilados, mb, orden, contad
                 break
         resultados.append(nueva_cfc)
 
-
-# Orden topológico:
-
 # lectura permite obtener un orden en el que es válido leer las páginas indicados.
 def lectura(grafo, paginas):
-    grados = calcular_grados_entrada(grafo, paginas)
+    grados = _grados_salida(grafo, paginas)
+    vertices= _vertices_entrada(grafo, paginas)
     cola = deque()
     for vertice in paginas:
         if grados[vertice] == 0:
@@ -99,49 +134,69 @@ def lectura(grafo, paginas):
     while not len(cola) == 0:
         v = cola.popleft()
         lectura_orden.append(v)
-        for w in grafo.adyacentes(v):
-            grados[w] -= 1
-            if grados[w]== 0:
-                cola.append(w)
+        vertice_entrada = vertices[v]
+        for w in vertice_entrada:
+            if w in paginas:
+                grados[w] -= 1
+                if grados[w]== 0:
+                    cola.append(w)
 
     if len(lectura_orden) != len(paginas): # No hay un ciclo
         return print("No existe forma de leer las paginas en orden")
     
     return lectura_orden
-
-# calcular_grados_entrada
-def calcular_grados_entrada(grafo, paginas=None):
-    grados_entrada = {}
+#_vertices_entrada
+# calcula los vertices de entrada para cada vertice en un grafo o vertices seleccionados
+def _vertices_entrada(grafo, paginas = None):
+    vertices_entrada = {}
     if paginas is None:
         for v in grafo:
-            grados_entrada[v] = 0
-        for v in grafo:
             for w in grafo.adyacentes(v):
-                grados_entrada[w] += 1
+                vertices_entrada[w] = v
     else:
         for v in paginas:
-            grados_entrada[v] = 0
+            vertices_entrada[v] = set()
         for v in paginas:
             for w in grafo.adyacentes(v):
-                grados_entrada[w] += 1
-    return grados_entrada
+                if not vertices_entrada or w in vertices_entrada:
+                    vertices_entrada[w].add(v)
+    return vertices_entrada
+
+# _grados_salida
+# Calcula los grados de salida de un grafo o de una cantidad seleccionada de vertices
+def _grados_salida(grafo, paginas=None):
+    grados_salida = {}
+    if paginas is None:
+        for v in grafo:
+            grados_salida[v] = len(grafo.adyacentes(v))
+        
+    else:
+        for v in paginas:
+            grados_salida[v] = 0
+        for v in paginas:
+            for w in grafo.adyacentes(v):
+                if w in grados_salida:
+                    grados_salida[v]+=1
+    return grados_salida
 
 
 # Navegacion por primer link:
 
 # navegacion_primer_link navega usando el primer link desde la página "origen" y navega usando siempre el primer link hasta
 # que no hay más links o se llegue a hayan visto 20 páginas.
-def navegacion_primer_link(grafo, origen):
+def navegacion(grafo, origen):
     navegacion = [origen]
     actual = origen
-    for i in range(20):
-        if len(grafo.adyacentes(actual)) > 0:
+    for i in range(MAX_ITER):
+        if len(grafo.adyacentes(actual)) == 0:
             break
         actual = grafo.adyacentes(actual)[0]
         navegacion.append(actual)
         
 
     return navegacion
+
+
 
 
 # Camino más corto:
@@ -254,7 +309,7 @@ def _max_frec(vertice, etiquetas, vertices_entrada):
 MIN_GRADO_SALIDA_COEF_CLUSTERING = 2
 
 # obtener_coefs_clustering calcula los coeficientes de clustering de todos los vértices del grafo.
-def obtener_coefs_clustering(grafo):
+def clustering(grafo):
     coeficientes = {}
 
     # Itera los vértices del grafo.
