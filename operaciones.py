@@ -1,50 +1,103 @@
 from collections import deque
 from grafo import *
 from test_grafo import *
+from enum import Enum
+from salida import *
+
 import sys
 import random
 
-MAX_ITER =  20
+# Diccionario de operaciones:
+
+# Comandos de entrada.
+LISTAR_OPERACIONES_CMD = "listar_operaciones"
+DIAMETRO_CMD = "diametro"
+CONECTIVIDAD_CMD = "conectados"
+ORDEN_LECTURA_CMD = "lectura"
+NAV_PRIMER_LINK_CMD = "navegacion"
+CAMINO_MAS_CORTO_CMD = "camino"
+COMUNIDADES_CMD = "comunidad"
+CLUSTERING_CMD = "clustering"
+RANGO_CMD = "rango"
+
+# Comandos para uso interno.
+class Comando(Enum):
+    ERROR = 0
+    LISTAR_OPERACIONES = 1
+    DIAMETRO = 2
+    CONECTIVIDAD = 3
+    ORDEN_LECTURA = 4
+    NAV_PRIMER_LINK = 5
+    CAMINO_MAS_CORTO = 6
+    COMUNIDADES = 7
+    CLUSTERING = 8
+    RANGO = 9
+
+# Diccionario para convertir comandos en formato de cadena de caracteres en una forma para uso interno.
+DICCIONARIO_COMANDOS = {
+    LISTAR_OPERACIONES_CMD: Comando.LISTAR_OPERACIONES,
+    DIAMETRO_CMD: Comando.DIAMETRO,
+    CONECTIVIDAD_CMD: Comando.CONECTIVIDAD,
+    ORDEN_LECTURA_CMD: Comando.ORDEN_LECTURA,
+    NAV_PRIMER_LINK_CMD: Comando.NAV_PRIMER_LINK,
+    CAMINO_MAS_CORTO_CMD: Comando.CAMINO_MAS_CORTO,
+    COMUNIDADES_CMD: Comando.COMUNIDADES,
+    CLUSTERING_CMD: Comando.CLUSTERING,
+    RANGO_CMD: Comando.RANGO
+}
+
 # Operaciones:
 
-# Imprime en pantalla las operaciones existentes
+DICCIONARIO_OPERACIONES = {
+DIAMETRO_CMD,
+CONECTIVIDAD_CMD,
+ORDEN_LECTURA_CMD,
+NAV_PRIMER_LINK_CMD,
+CAMINO_MAS_CORTO_CMD,
+COMUNIDADES_CMD,
+CLUSTERING_CMD,
+RANGO_CMD
+}
+
+# Listar operaciones:
 def listar_operaciones():
-    print("camino")
-    print("mas_importantes")
-    print("conectados")
-    print("ciclo")
-    print("rango")
-    print("lectura")
-    print("diametro")
-    print("rango")
-    print("navegacion")
-    print("camino_mas_corto")
-    print("clustering")
-    print("comunidad")
+    for operacion in DICCIONARIO_OPERACIONES:
+        sys.stdout.write(operacion + '\n')
+
 
 # Diámetro de un grafo:
+
+# imprimir_diametro imprime el diámetro del grafo.
+def imprimir_diametro(camino_diametro):
+    imprimir_camino(camino_diametro)
+    sys.stdout.write("Costo: ")
+    sys.stdout.write(str(len(camino_diametro)) - 1)
+    sys.stdout.write('\n')
+
 # diametro devuelve el diámetro del grafo.
 def diametro(grafo):
-    diametro = 0
-    for v in grafo:
-        dist_max = _obtener_distancias_radiales_bfs(grafo,v)
+    diametro = []
+    for v in grafo.obtener_vertices():
+        camino_min_mas_grande = _obtener_distancias_maximas_bfs(grafo,v)
 
-        if dist_max > diametro:
-            diametro = dist_max
+        if len(camino_min_mas_grande) > len(diametro):
+            diametro = camino_min_mas_grande
 
     return diametro
 
-# _obtener_distancias_radiales_bfs devuelve la distancia mínima más grande de un vértice a todos los demás.
-def _obtener_distancias_radiales_bfs(grafo, v):
+# _obtener_distancias_maximas_bfs devuelve la distancia mínima más grande de un vértice a todos los demás.
+def _obtener_distancias_maximas_bfs(grafo, origen):
     cola = deque()
     visitados = set()
     distancias = {}
+    padres = {}
 
-    cola.append(v)
-    visitados.add(v)
-    distancias[v] = 0
+    cola.append(origen)
+    visitados.add(origen)
+    distancias[origen] = 0
+    padres[origen] = None
 
-    dist_max = 0
+    v_dist_max = origen
 
     while len(cola) > 0:
         v = cola.popleft()
@@ -54,15 +107,21 @@ def _obtener_distancias_radiales_bfs(grafo, v):
             if w not in visitados:
                 visitados.add(w)
                 cola.append(w)
-
+                padres[w] = v
                 distancias[w] = distancias[v] + 1
 
-                if dist_max < distancias[w]:
-                    dist_max = distancias[w]
+                if distancias[v_dist_max] < distancias[w]:
+                    v_dist_max = w
 
-    return dist_max
+    return _reconstruir_camino(padres, origen, v_dist_max)
 
 # Rango
+
+# imprimir_paginas_rango imprime la cantidad de páginas encontradas.
+def imprimir_paginas_rango(cantidad):
+    sys.stdout.write(str(cantidad))
+    sys.stdout.write('\n')
+
 # Permite obtener la cantidad de páginas que se encuenten a exactamente
 # n links/saltos desde la página pasada por parámetro.
 def rango(grafo,vertice_origen, n):
@@ -85,7 +144,16 @@ def rango(grafo,vertice_origen, n):
                     cola.append(w)
     return len(resultado)
 
+
 # Conectividad:
+
+# imprimir_cfc imprime la componente fuertemente conexa pasada por argumento.
+def imprimir_cfc(cfc):
+    if len(cfc) == 0:
+        return
+
+    imprimir_conjunto(cfc)
+
 # conectividad muestra todas las páginas a los que se puede llegar desde la página pasada por parámetro y
 # que, a su vez, puedan también volver a dicha página.
 def conectados(grafo, vertice_origen):
@@ -122,6 +190,17 @@ def _dfs_tarjan(grafo,v,resultados, visitados, pila, apilados, mb, orden, contad
                 break
         resultados.append(nueva_cfc)
 
+
+# Orden topológico:
+
+# imprimir_diametro imprime el diámetro del grafo.
+def imprimir_lectura(orden_topologico):
+
+    if len(orden_topologico) == 0:
+        sys.stdout.write("No existe forma de leer las paginas en orden\n")
+    else:
+        imprimir_lista_sin_orden(orden_topologico)
+
 # lectura permite obtener un orden en el que es válido leer las páginas indicados.
 def lectura(grafo, paginas):
     grados = _grados_salida(grafo, paginas)
@@ -142,7 +221,7 @@ def lectura(grafo, paginas):
                     cola.append(w)
 
     if len(lectura_orden) != len(paginas): # No hay un ciclo
-        return print("No existe forma de leer las paginas en orden")
+        return []
     
     return lectura_orden
 #_vertices_entrada
@@ -150,7 +229,7 @@ def lectura(grafo, paginas):
 def _vertices_entrada(grafo, paginas = None):
     vertices_entrada = {}
     if paginas is None:
-        for v in grafo:
+        for v in grafo.obtener_vertices():
             for w in grafo.adyacentes(v):
                 vertices_entrada[w] = v
     else:
@@ -167,7 +246,7 @@ def _vertices_entrada(grafo, paginas = None):
 def _grados_salida(grafo, paginas=None):
     grados_salida = {}
     if paginas is None:
-        for v in grafo:
+        for v in grafo.obtener_vertices():
             grados_salida[v] = len(grafo.adyacentes(v))
         
     else:
@@ -181,6 +260,12 @@ def _grados_salida(grafo, paginas=None):
 
 
 # Navegacion por primer link:
+
+MAX_ITER =  20
+
+# imprimir_camino_nav_primer_link
+def imprimir_camino_nav_primer_link(camino):
+    imprimir_camino(camino)
 
 # navegacion_primer_link navega usando el primer link desde la página "origen" y navega usando siempre el primer link hasta
 # que no hay más links o se llegue a hayan visto 20 páginas.
@@ -202,6 +287,17 @@ def navegacion(grafo, origen):
 # Camino más corto:
 
 FACTOR_ITERACIONES_COMUNIDAD = 3
+
+# imprimir_camino_mas_corto
+def imprimir_camino_mas_corto(camino):
+    if len(camino) == 0:
+        sys.stdout.write("No se encontro recorrido\n")
+        return
+
+    imprimir_camino(camino)
+    sys.stdout.write("Costo: ")
+    sys.stdout.write(str(len(camino) - 1))
+    sys.stdout.write('\n')
 
 # camino_mas_corto busca el camino más corto de un grafo desde el elemento "origen" hasta el elemento "destino".
 def camino_mas_corto(grafo, origen, destino):
@@ -237,30 +333,40 @@ def _reconstruir_camino(padres, origen, destino):
         camino.append(actual)
         actual = padres[actual]
 
-    return camino.reverse()
+    camino.append(origen)
+
+    camino.reverse()
+
+    return camino
 
 
 # Comunidades:
+
+# imprimir_comunidad
+def imprimir_comunidad(comunidad):
+    for v in comunidad:
+        sys.stdout.write(v)
+        sys.stdout.write('\n')
 
 # comunidad devuelve las páginas que pertenecen a la comunidad a la que pertenece la página "pagina" pasada por parámetro.
 def comunidad(grafo, pagina):
     etiquetas = {}
     orden_analisis = {}
-    vertices_entrada = {}
+    vertices_entrantes = {}
 
     cantidad_vertices = 0
 
     # Establece el valor de las etiquetas.
-    for cantidad_vertices, v in enumerate(grafo, 0):
+    for cantidad_vertices, v in enumerate(grafo.obtener_vertices(), 0):
         etiquetas[v] = cantidad_vertices
         orden_analisis[cantidad_vertices] = v
 
-        if v not in vertices_entrada:
-            vertices_entrada[v] = set()
+        if v not in vertices_entrantes:
+            vertices_entrantes[v] = set()
 
         for w in grafo.adyacentes(v):
-            if w not in vertices_entrada[v]:
-                vertices_entrada[v].set(w)
+            if w not in vertices_entrantes[v]:
+                vertices_entrantes[v].add(w)
 
     # Aleatoriza posiciones de lectura.
     for i in range(cantidad_vertices):
@@ -268,27 +374,29 @@ def comunidad(grafo, pagina):
         orden_analisis[nueva_pos], orden_analisis[i] = orden_analisis[i], orden_analisis[cantidad_vertices]
 
     # Agrupa los vértices en comunidades.
-    for indice in range(0, FACTOR_ITERACIONES_COMUNIDAD*cantidad_vertices):
-        v = orden_analisis[indice]
+    for _ in range(FACTOR_ITERACIONES_COMUNIDAD):
 
-        etiquetas[v] = _max_frec(v, etiquetas, vertices_entrada[v])
+        for indice in range(0, cantidad_vertices):
+            v = orden_analisis[indice]
 
-    # Crea la lista con los elementos de la comunidad.
-    etiqueta_pagina = etiquetas[pagina]
-    lista_comunidad = []
+            etiquetas[v] = _max_frec(etiquetas, vertices_entrantes[v])
+
+        # Crea la lista con los elementos de la comunidad.
+        etiqueta_pagina = etiquetas[pagina]
+        lista_comunidad = []
     
-    for v in grafo:
+    for v in grafo.obtener_vertices():
         if etiqueta_pagina == etiquetas[v]:
             lista_comunidad.append(v)
 
     return lista_comunidad
 
 # _max_frec busca la etiqueta con más frecuencia
-def _max_frec(vertice, etiquetas, vertices_entrada):
+def _max_frec(etiquetas, vertices_entrantes):
     frecuencias = {}
 
     # Arma un diccionario de cantidad de apariciones de las etiquetas.
-    for v in vertices_entrada:
+    for v in vertices_entrantes:
         if v not in frecuencias:
             frecuencias[etiquetas[v]] = 0
         else:
@@ -297,7 +405,8 @@ def _max_frec(vertice, etiquetas, vertices_entrada):
     # Busca la frecuencia más alta.
     max_frec_label = 0
     max_cant = 0
-    for label, cant in frecuencias:
+    for label in frecuencias:
+        cant = frecuencias[label]
         if cant > max_cant:
             max_frec_label = label
 
@@ -308,41 +417,48 @@ def _max_frec(vertice, etiquetas, vertices_entrada):
 
 MIN_GRADO_SALIDA_COEF_CLUSTERING = 2
 
-# obtener_coefs_clustering calcula los coeficientes de clustering de todos los vértices del grafo.
-def clustering(grafo):
-    coeficientes = {}
+# imprimir_coef_clustering imprime el coeficiente de clustering a tres decimales.
+def imprimir_coef_clustering(coef):
+    sys.stdout.write("{:.3f}".format(coef) + '\n')
 
-    # Itera los vértices del grafo.
-    for v in grafo:
-        grado_salida = len(grafo.adyacentes(v))
+# calcular_coef_clustering_promedio calcula el coeficiente de clustering promedio del grafo.
+def calcular_coef_clustering_promedio(grafo):
+    suma_coefs = 0.0
 
-        if grado_salida < MIN_GRADO_SALIDA_COEF_CLUSTERING:
-            coeficientes[v] = 0
+    for v in grafo.obtener_vertices():
+        suma_coefs += calcular_coef_clustering_vertice(grafo, v)
+    
+    return suma_coefs / len(grafo.obtener_vertices())
+
+# calcular_coef_clustering_vertice calcula el coeficiente de clustering de un único vértice.
+def calcular_coef_clustering_vertice(grafo, origen):
+
+    grado_salida = len(grafo.adyacentes(origen))
+
+    if grado_salida < MIN_GRADO_SALIDA_COEF_CLUSTERING:
+        return 0.0
+
+    cant_ady_conectados = 0
+
+    for ady1 in grafo.adyacentes(origen):
+
+        # Evita el bucle
+        if ady1 == origen:
             continue
 
-        cant_ady_conectados = 0
-
-        for ady1 in grafo.adyacentes(v):
+        for ady2 in grafo.adyacentes(origen):
 
             # Evita el bucle
-            if ady1 == v:
+            if ady2 == origen:
                 continue
 
-            for ady2 in grafo.adyacentes(v):
+            # Evita que los vértices sean iguales.
+            if ady1 == ady2:
+                continue
 
-                # Evita el bucle
-                if ady2 == v:
-                    continue
+            # Si hay una arista que une los adyacentes analizados, se suma a la cantidad.
+            if grafo.estan_unidos(ady1, ady2):
+                cant_ady_conectados += 1
 
-                # Evita que los vértices sean iguales.
-                if ady1 == ady2:
-                    continue
-
-                # Si hay una arista que une los adyacentes analizados, se suma a la cantidad.
-                if grafo.estan_unidos(ady1, ady2):
-                    cant_ady_conectados += 1
-
-        # Se calcula el valor del coeficiente y se guarda en el diccionario.
-        coeficientes[v] = cant_ady_conectados / ((grado_salida - 1)*grado_salida)
-
-    return coeficientes
+    # Se calcula el valor del coeficiente y se devuelve el resultado.
+    return cant_ady_conectados / ((grado_salida - 1)*grado_salida)
