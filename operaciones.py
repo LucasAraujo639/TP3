@@ -354,12 +354,12 @@ def comunidad(grafo, pagina):
     orden_analisis = {}
     vertices_entrantes = {}
 
-    cantidad_vertices = 0
+    cantidad_vertices = len(grafo.obtener_vertices())
 
     # Establece el valor de las etiquetas.
-    for cantidad_vertices, v in enumerate(grafo.obtener_vertices(), 0):
-        etiquetas[v] = cantidad_vertices
-        orden_analisis[cantidad_vertices] = v
+    for i, v in enumerate(grafo.obtener_vertices(), 0):
+        etiquetas[v] = i
+        orden_analisis[i] = v
 
         if v not in vertices_entrantes:
             vertices_entrantes[v] = set()
@@ -369,9 +369,9 @@ def comunidad(grafo, pagina):
                 vertices_entrantes[v].add(w)
 
     # Aleatoriza posiciones de lectura.
-    for i in range(cantidad_vertices):
-        nueva_pos = random.randint(0, cantidad_vertices)
-        orden_analisis[nueva_pos], orden_analisis[i] = orden_analisis[i], orden_analisis[cantidad_vertices]
+    for i in range(len(grafo.obtener_vertices())):
+        nueva_pos = random.randint(0, cantidad_vertices-1)
+        orden_analisis[nueva_pos], orden_analisis[i] = orden_analisis[i], orden_analisis[nueva_pos]
 
     # Agrupa los vértices en comunidades.
     for _ in range(FACTOR_ITERACIONES_COMUNIDAD):
@@ -384,7 +384,8 @@ def comunidad(grafo, pagina):
         # Crea la lista con los elementos de la comunidad.
         etiqueta_pagina = etiquetas[pagina]
         lista_comunidad = []
-    
+
+    # Crear lista de comunidad de la palabra buscada.
     for v in grafo.obtener_vertices():
         if etiqueta_pagina == etiquetas[v]:
             lista_comunidad.append(v)
