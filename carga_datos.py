@@ -1,5 +1,12 @@
 from grafo import *
 
+POSICION_ARCHIVO_DATOS_INVOCACION_CMD = 1
+
+# obtener_archivo_entrada_datos
+def obtener_archivo_entrada_datos(datos_invocacion):
+    return datos_invocacion[POSICION_ARCHIVO_DATOS_INVOCACION_CMD]
+
+
 # crear_grafo_internet carga los datos de las páginas en un grafo.
 def crear_grafo_internet(direccion):
     grafo_nuevo = Grafo()
@@ -8,7 +15,10 @@ def crear_grafo_internet(direccion):
     # Lee los datos del archivo.
     with open(direccion, "rt") as archivo:
         for linea in archivo:
+
+            # Se quitan espacios residuales de las líneas.
             linea = linea.rstrip()
+
             # Se separan los datos según el formato de los archivos.
             datos_parseados = linea.split("\t")
 
