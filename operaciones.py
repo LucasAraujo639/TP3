@@ -1,6 +1,5 @@
 from collections import deque
 from grafo import *
-from test_grafo import *
 from enum import Enum
 from salida import *
 
@@ -71,7 +70,7 @@ def listar_operaciones():
 def imprimir_diametro(camino_diametro):
     imprimir_camino(camino_diametro)
     sys.stdout.write("Costo: ")
-    sys.stdout.write(str(len(camino_diametro)) - 1)
+    sys.stdout.write(str(len(camino_diametro) - 1))
     sys.stdout.write('\n')
 
 # diametro devuelve el diámetro del grafo.
@@ -157,7 +156,7 @@ def imprimir_cfc(cfc):
 # conectividad muestra todas las páginas a los que se puede llegar desde la página pasada por parámetro y
 # que, a su vez, puedan también volver a dicha página.
 def conectados(grafo, vertice_origen):
-    sys.setrecursionlimit(20000)
+    sys.setrecursionlimit(500000)
     resultados = []
     visitados = set()
     for v in grafo.obtener_vertices():
@@ -171,7 +170,9 @@ def conectados(grafo, vertice_origen):
 
 # _dfs_tarjan
 def _dfs_tarjan(grafo,v,resultados, visitados, pila, apilados, mb, orden, contador_global):
-    mb[v] = orden[v] = contador_global[0]
+    mb[v] = contador_global[0]
+    orden[v] = contador_global[0]
+    visitados.add(v)
     pila.append(v)
     apilados.add(v)
     contador_global[0] += 1
@@ -180,10 +181,11 @@ def _dfs_tarjan(grafo,v,resultados, visitados, pila, apilados, mb, orden, contad
             _dfs_tarjan(grafo,w,resultados, visitados, pila, apilados, mb, orden, contador_global)
         if w in apilados:
             mb[v] = min(mb[v], mb[w])
+
     if mb[v] == orden[v]:
         nueva_cfc = []
         while True:
-            w = pila.popleft()
+            w = pila.pop()
             apilados.remove(w)
             nueva_cfc.append(w)
             if w == v:
