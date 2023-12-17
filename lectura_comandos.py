@@ -1,5 +1,58 @@
 from grafo import *
-from operaciones import *
+from funciones import *
+from netstats import *
+
+# Diccionario de operaciones:
+
+# Comandos de entrada.
+LISTAR_OPERACIONES_CMD = "listar_operaciones"
+DIAMETRO_CMD = "diametro"
+CONECTIVIDAD_CMD = "conectados"
+ORDEN_LECTURA_CMD = "lectura"
+NAV_PRIMER_LINK_CMD = "navegacion"
+CAMINO_MAS_CORTO_CMD = "camino"
+COMUNIDADES_CMD = "comunidad"
+CLUSTERING_CMD = "clustering"
+RANGO_CMD = "rango"
+
+# Comandos para uso interno.
+class Comando(Enum):
+    ERROR = 0
+    LISTAR_OPERACIONES = 1
+    DIAMETRO = 2
+    CONECTIVIDAD = 3
+    ORDEN_LECTURA = 4
+    NAV_PRIMER_LINK = 5
+    CAMINO_MAS_CORTO = 6
+    COMUNIDADES = 7
+    CLUSTERING = 8
+    RANGO = 9
+
+# Diccionario para convertir comandos en formato de cadena de caracteres en una forma para uso interno.
+DICCIONARIO_COMANDOS = {
+    LISTAR_OPERACIONES_CMD: Comando.LISTAR_OPERACIONES,
+    DIAMETRO_CMD: Comando.DIAMETRO,
+    CONECTIVIDAD_CMD: Comando.CONECTIVIDAD,
+    ORDEN_LECTURA_CMD: Comando.ORDEN_LECTURA,
+    NAV_PRIMER_LINK_CMD: Comando.NAV_PRIMER_LINK,
+    CAMINO_MAS_CORTO_CMD: Comando.CAMINO_MAS_CORTO,
+    COMUNIDADES_CMD: Comando.COMUNIDADES,
+    CLUSTERING_CMD: Comando.CLUSTERING,
+    RANGO_CMD: Comando.RANGO
+}
+
+# Operaciones:
+
+DICCIONARIO_OPERACIONES = {
+DIAMETRO_CMD,
+CONECTIVIDAD_CMD,
+ORDEN_LECTURA_CMD,
+NAV_PRIMER_LINK_CMD,
+CAMINO_MAS_CORTO_CMD,
+COMUNIDADES_CMD,
+CLUSTERING_CMD,
+RANGO_CMD
+}
 
 def lectura_comandos(grafo, entrada_comandos):
 
