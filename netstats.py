@@ -2,7 +2,6 @@
 
 from grafo import *
 from carga_datos import *
-from operaciones import *
 from lectura_comandos import lectura_comandos
 
 import sys

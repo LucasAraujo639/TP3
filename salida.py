@@ -29,3 +29,64 @@ def imprimir_lista_sin_orden(lista):
         sys.stdout.write(lista.pop(0))
 
     sys.stdout.write('\n')
+
+# Diametro
+# imprimir_diametro imprime el diámetro del grafo.
+def imprimir_diametro(camino_diametro):
+    imprimir_camino(camino_diametro)
+    sys.stdout.write("Costo: ")
+    sys.stdout.write(str(len(camino_diametro) - 1))
+    sys.stdout.write('\n')
+
+# Rango
+# imprimir_paginas_rango imprime la cantidad de páginas encontradas.
+def imprimir_paginas_rango(cantidad):
+    sys.stdout.write(str(cantidad))
+    sys.stdout.write('\n')
+
+# Conectividad
+# imprimir_cfc imprime la componente fuertemente conexa pasada por argumento.
+def imprimir_cfc(cfc):
+    if len(cfc) == 0:
+        return
+
+    imprimir_conjunto(cfc)
+
+# Lectura (Orden topológico):
+# imprimir_diametro imprime el diámetro del grafo.
+def imprimir_lectura(orden_topologico):
+
+    if len(orden_topologico) == 0:
+        sys.stdout.write("No existe forma de leer las paginas en orden\n")
+    else:
+        imprimir_lista_sin_orden(orden_topologico)
+
+# Navegacion por primer link:
+# imprimir_camino_nav_primer_link
+def imprimir_camino_nav_primer_link(camino):
+    imprimir_camino(camino)
+
+# Camino más corto:
+# imprimir_camino_mas_corto
+def imprimir_camino_mas_corto(camino):
+    if len(camino) == 0:
+        sys.stdout.write("No se encontro recorrido\n")
+        return
+
+    imprimir_camino(camino)
+    sys.stdout.write("Costo: ")
+    sys.stdout.write(str(len(camino) - 1))
+    sys.stdout.write('\n')
+
+
+# Comunidades:
+# imprimir_comunidad
+def imprimir_comunidad(comunidad):
+    for v in comunidad:
+        sys.stdout.write(v)
+        sys.stdout.write('\n')
+        
+# Coeficiente de Clustering:    
+# imprimir_coef_clustering imprime el coeficiente de clustering a tres decimales.
+def imprimir_coef_clustering(coef):
+    sys.stdout.write("{:.3f}".format(coef) + '\n')
